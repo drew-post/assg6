@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stdlib.h>
+#include <time.h>
 
 using namespace std;
 
@@ -65,14 +67,6 @@ bool checkInput(string choice, string option1, string option2, string option3, s
     }
 }
 
-//void readInImage(string fileName, ifstream inFileofstream outFile, )
-//{
-    //ofstream outFile
-    //cout << "Enter image file name: ";
-    //cin >> fileName;
-    //inFile.open(fileName);
-    //outFile.open("result.ppm");
-//}
 
 void manipOptions(char &userManipChoice)
 {
@@ -114,6 +108,40 @@ void cropImage();
 
 void rotateImage();
 
+void generateRandomImage()
+{
+    int width = 255;
+    int length = 300;
+
+    ofstream outFile;
+    outFile.open("generatedImage.ppm");
+
+    int r;
+    int g;
+    int b;
+
+    srand(time(0));
+    int random = rand() % 255;
+
+    outFile << "P3" << endl;
+    outFile << width << " " << length << endl;
+
+    for(int i = 0; i < length; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            r = rand() % 300;
+            g = rand() % 300;
+            b = rand() % 300;
+
+            outFile << r << endl;
+            outFile << g << endl;
+            outFile << b << endl;
+
+        }
+    }
+}
+
 
 int main()
 {
@@ -130,6 +158,7 @@ int main()
     string filterOutGreen = "gr";
     string filterOutBlue = "b";
     string filterChoice;
+    string fileName;
 
     cout << "***** PHOTOSHOP *****" << endl;
     cout << endl;
@@ -146,13 +175,22 @@ int main()
             if(userManipChoice == filterImage)
             {
                 filterImageMenu(filterChoice);
-               // readInImage();
+
             }
 
             if(userManipChoice == quit)
             {
                 return 0;
             }
+        }
+
+        if(userChoice == generateImage)
+        {
+            generateRandomImage();
+            generateRandomImage();
+            generateRandomImage();
+
+            return 0;
         }
 
     }
