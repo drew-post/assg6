@@ -6,7 +6,7 @@
 Compiling and Running
 - Open in Code::Blocks
 - Build and Run 
-- Changed Code::Blocks settings to compile with GCC by the C++11 standard
+
 
 Notes
-
+- Changed Code::Blocks settings to compile with GCC by the C++11 standard
