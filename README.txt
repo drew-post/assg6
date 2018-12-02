@@ -10,3 +10,4 @@ Compiling and Running
 
 Notes
 - Changed Code::Blocks settings to compile with GCC by the C++11 standard
+- If you are running the program and entering a file that was converted to ppm with GIMP, the second line with the '#' comment should be deleted before reading it in.
