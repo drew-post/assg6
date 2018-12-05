@@ -6,6 +6,7 @@
 Compiling and Running
 - Open in Code::Blocks
 - Build and Run 
+- If you're generating an image, after the images have been generated as .ppm's, use GIMP to convert them to .jpg's before opening the .html file
 
 
 Notes
