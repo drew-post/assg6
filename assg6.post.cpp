@@ -9,7 +9,6 @@
 #include <string>
 #include <stdlib.h>
 #include <time.h>
-#include <vector>
 #include <cstring>
 
 
@@ -33,15 +32,11 @@ void filterImageMenu(string &);
 
 void greyScale();
 
-void red();
-
-void blue();
-
-void green();
-
-void cropImage();
+void filterOut(string &, string, int &, int &, int &, int &);
 
 void rotateImage();
+
+void writeHTML(string[], int);
 
 void generateRandomImage(string);
 
@@ -53,9 +48,11 @@ void generateRandomImage(string);
 
 
 
+
+
 int main()
 {
-        srand(time(0));
+    srand(time(0));
     char userChoice;
     char userManipChoice;
     char quit = 'q';
@@ -76,6 +73,8 @@ int main()
     string generatedImage3 = "generatedImage3.ppm";
     string generatedImage4 = "generatedImage4.ppm";
     string generatedImage5 = "generatedImage5.ppm";
+    int rowTop;
+    int rowBottom;
 
     cout << "   ***** PHOTOSHOP *****" << endl;
     cout << endl;
@@ -85,7 +84,7 @@ int main()
 
 
 
-    while(userChoice != quit && userManipChoice != quit && filterChoice != quitS)
+    while(userChoice != quit)
     {
         if(userChoice == manipulateImage)
         {
@@ -100,70 +99,286 @@ int main()
             cout << endl;
 
             ifstream inFile;
-            inFile.open(fileName.c_str());
+            inFile.open(fileName);
+
             inFile >> magicNum;
+            cout << "   " << magicNum << endl;
             inFile >> columns;
+            cout << "   " << columns << endl;
             inFile >> rows;
+            cout << "   " << rows << endl;
             inFile >> range;
+            cout << "   " << range << endl;
 
             int input[rows][columns][3];
 
-            while(!inFile.eof()) //FIXME: why doesn't this work
-            {
+            //while(!inFile.eof()) //FIXME: why doesn't this work
+            //{
+
                 for(int i = 0; i < rows; i++)
                 {
+                   // cout << "first loop" << endl;
                     for(int j = 0; j < columns; j++)
                     {
-
+                       // cout << "second loop" << endl;
                         for(int x = 0; x < 3; x++)
                         {
-                            inFile >> input[i][j][x];
+                           // cout << "third loop" << endl;
+                            if(!inFile.eof())
+                            {
+                               // cout << "if" << endl;
+                                inFile >> input[i][j][x];
+                                // cout << input[0][0][0];
+                            }
 
-                        }
+                        } //x
 
-                    }
+                    } //j
+
                 }
-            }
+                 //} //i
 
+            inFile.close();
+
+
+//            ofstream outFile;
+//            outFile.open("filterTest1.ppm");
+//            outFile << magicNum << endl;
+//            outFile << columns << "  ";
+//            outFile << rows << endl;
+//            outFile << range << endl;
+//
+//                for(int i = 0; i < rows; i++)
+//                {
+//                    for(int j = 0; j < columns; j++)
+//                    {
+//                        for(int x = 0; x < 3; x++)
+//                        {
+//                            outFile << input[i][j][x];
+//                            outFile << endl;
+//                        }
+//                    }
+//                }
+
+
+ //             outFile.close();
 
             manipOptions(userManipChoice);
 
-
-            if(userManipChoice == filterImage)
-            {
+        if(userManipChoice == filterImage)
+        {
 
                 filterImageMenu(filterChoice);
 
+
                 if(filterChoice == greyScale)
                 {
+                    int red;
+                    int green;
+                    int blue;
+                    string fileNameG = "filterGreyScale.ppm";
+                    ofstream outFile2;
+                    outFile2.open(fileNameG);
+                    outFile2 << magicNum << endl;
+                    outFile2 << columns << "  ";
+                    outFile2 << rows << endl;
+                    outFile2 << range << endl;
+
+                    for(int i = 0; i < rows; i++)
+                    {
+                        for(int j = 0; j < columns; j++)
+                        {
+                            red = input[i][j][0] * 0.3;
+                            green = input[i][j][1] * 0.59;
+                            blue = input[i][j][2] * 0.11;
+
+                             outFile2 << ((red) + (green) + (blue));
+                             outFile2 << endl;
+                             outFile2 << ((red) + (green) + (blue));
+                             outFile2 << endl;
+                             outFile2 << ((red) + (green) + (blue));
+                             outFile2 << endl;
+
+
+                        } //j
+
+                       // outFile2 << ((red) + (green) + (blue));
+
+                    } //i
+
+                    outFile2.close();
+
+                    cout << "   File was saved as filterGreyScale.ppm " << endl;
+                    cout << endl;
+
+                    manipOptions(userManipChoice);
+
 
                 }
 
+                else if(filterChoice == filterOutRed)
+                {
+                    string fileNameR = "filterOutRed.ppm";
+                    ofstream outFile;
+                    outFile.open(fileNameR);
+                    outFile << magicNum << endl;
+                    outFile << columns << "  ";
+                    outFile << rows << endl;
+                    outFile << range << endl;
+
+                    for(int i = 0; i < rows; i++)
+                    {
+                        for(int j = 0; j < columns; j++)
+                        {
+                            for(int x = 0; x < 3; x++)
+                            {
+                                if(x == 0)
+                                {
+                                    outFile << 0;
+                                    outFile << endl;
+                                } //if
+                                else
+                                {
+                                    outFile << input[i][j][x];
+                                    outFile << endl;
+                                } //else
+                            } //x
+                        } //j
+                    } //i
+
+
+                    outFile.close();
+
+
+
+                    cout << "   File was saved as filterOutRed.ppm " << endl;
+                    cout << endl;
+
+                    manipOptions(userManipChoice);
+
+
+                } //filter out red
+
+
+
+            } //filter
+
+            else if(userManipChoice == cropImage)
+            {
+
+                cout << "   Enter Dimensions: ";
+                cin >> rowTop;
+                cin >> rowBottom;
+
+//                cout << rowTop << endl;
+//                cout << rowBottom << endl;
+
+                cout << endl;
+
+                ofstream outFileC;
+                outFileC.open("croppedImage.ppm");
+                outFileC << magicNum << endl;
+                outFileC << columns << "  ";
+                outFileC << rows - (rowTop + rowBottom) << endl;
+                outFileC << range << endl;
+
+                for(int i = rowTop; i < (rows - rowBottom); i++)
+                {
+                    for(int j = 0; j < columns; j++)
+                    {
+                        for(int x = 0; x < 3; x++)
+                        {
+                            outFileC << input[i][j][x];
+                            outFileC << endl;
+
+                        } //x
+
+                    } //j
+
+                }//i
+
+                outFileC.close();
+
+                cout << "   File was saved as croppedImage.ppm" << endl;
+                cout << endl;
+
+                manipOptions(userManipChoice); //FIXME: menu error???
+
+
+            } //crop
+
+            else if(userManipChoice == rotateImage)
+            {
+                ofstream outFileR;
+                outFileR.open("rotatedImage.ppm");
+                outFileR << magicNum << endl;
+                outFileR << rows << " ";
+                outFileR << columns << endl;
+                outFileR << range << endl;
+
+                for(int i = 0; i < columns; i++)
+                {
+                    for(int j = rows - 1; j >= 0; j--)
+                    {
+                        outFileR << input[j][i][0];
+                        outFileR << endl;
+                        outFileR << input[j][i][1];
+                        outFileR << endl;
+                        outFileR << input[j][i][2];
+                        outFileR << endl;
+                    }
+                }
+
+                outFileR.close();
+
+                cout << "   File was saved as rotatedImage.ppm" << endl;
+                cout << endl;
+
+                manipOptions(userManipChoice);
+
+
+
+//                outFileR << input[rows - 1][1][0];
+//                outFileR << input[rows - 1][1][1];
+//                outFileR << input[rows - 1][1][2];
+//                outFileR << input[rows - 2][1][0];
 
             }
 
+            else if(userManipChoice == 'q')
+            {
+                promptUser(userChoice);
+
+            } //back to main menu
+
         } //manipulate image
 
-        if(userChoice == generateImage)
+        else if(userChoice == generateImage)
         {
             int numImg;
             cout << "   How many images do you want to generate? ";
             cin >> numImg;
            //string genFileName;
-            for(int i = 1; i <= numImg; i++)
+            string fileNames[numImg];
+
+            for(int i = 0; i < numImg; i++)
             {
                 string num = to_string(i);
 
                 string genFileName = "generatedImage" + num + ".ppm";
 
+                fileNames[i] = "generatedImage" + num + ".jpg";
+
                 generateRandomImage(genFileName);
             }
 
+            writeHTML(fileNames, numImg);
 
+            cout << endl;
 
-
-            return 0;
+            promptUser(userChoice);
         } //generate image
+
 
     } //while the user doesn't choose quit
 
@@ -204,9 +419,9 @@ void promptUser(char &userChoice)
 
 }
 
-//void readInFile(string fileName, string &magicNum, int &rows, int &columns, array[][])
+//void readInFile(string fileName, string &magicNum, int &rows, int &columns, int array[][][3])
 //{
-//
+////
 //}
 
 bool checkInput(char choice, char option1, char option2, char option3, char option4)
@@ -283,20 +498,80 @@ void filterImageMenu(string &filterChoice)
         cin >> filterChoice;
         cout << endl;
     }
-    while(checkInput(filterChoice, "gs", "r", "b", "gr", "q"));
+    while(checkInput(filterChoice, "gs", "r", "b", "gr", "q") == false);
 }
 
 void greyScale();
 
-void red();
+void filterOut(string &filterChoice, string fileName, int &magicNum, int &columns, int &rows, int &range /*int &input[][][3]*/)
+{
+//    ofstream outFile;
+//    outFile.open(fileName);
+//    outFile << magicNum << endl;
+//    outFile << columns << "  ";
+//    outFile << rows << endl;
+//    outFile << range << endl;
+//
+//    if(filterChoice == "r")
+//    {
+//         for(int i = 0; i < rows; i++)
+//        {
+//            for(int j = 0; j < columns; j++)
+//            {
+//                for(int x = 0; x < 3; x++)
+//                {
+//                    if(x == 0)
+//                    {
+//                        input[i][j][x] = 0;
+//                        outFile << input[i][j][x];
+//                        outFile << endl;
+//                    } //if
+//                    else
+//                    {
+//                        outFile << input[i][j][x];
+//                        outFile << endl;
+//                    } //else
+//                } //x
+//            } //j
+//        } //i
+//
+//        outFile.close();
+//
+//    } //red
 
-void blue();
-
-void green();
+}
 
 void cropImage();
 
 void rotateImage();
+
+void writeHTML(string names[], int numOfFiles)
+{
+    ofstream outFile;
+    outFile.open("DrewPost.html");
+    outFile << "<!DOCTYPE html>" << endl;
+    outFile << "<html>" << endl;
+    outFile << " <head>" << endl;
+    outFile << "   <title> DrewPost.html </title>" << endl;
+    outFile << " </head>" << endl;
+    outFile << endl;
+    outFile << " <body>" << endl;
+    outFile << "  <p>" << endl;
+    outFile << "   <ul>" << endl;
+
+    for(int i = 0; i < numOfFiles; i++)
+    {
+        outFile << "    <li><a href = \"" + names[i] +"\"> Random Image " << i + 1 << "</a></li>" << endl;
+    }
+
+    outFile << "   </ul>" << endl;
+    outFile << "  </p>" << endl;
+    outFile << " </body>" << endl;
+    outFile << "</html>" << endl;
+
+    outFile.close();
+
+}
 
 void generateRandomImage(string fileName)
 {
