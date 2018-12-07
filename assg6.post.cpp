@@ -16,7 +16,7 @@
 using namespace std;
 
 
-const int MAXCOLUMNS = 500;
+const int MAXCOLUMNS = 500; //global variable to help pass arrays into functions
 
 
 bool checkInput(char, char, char, char); //checks the input of the promptUser function to make sure it's valid (used in main menu)
@@ -25,7 +25,7 @@ void promptUser(char &); //prompts user with main menu
 
 string getFileName(); //gets file name from user
 
-bool readinSize(const string &, string &, int &, int &, int &); //reads in the size of the file in order to create the appropriate sized array for readInFile
+bool readinSize(string &, string &, int &, int &, int &); //reads in the size of the file in order to create the appropriate sized array for readInFile
 
 void readInFile(const string &, int &, int &, short input[][MAXCOLUMNS][3]); //reads in file to manipulate
 
@@ -106,7 +106,7 @@ int main()
 
             manipOptions(userManipChoice); //display manipulation menu options
 
-            while(userManipChoice != quit)
+            while(userManipChoice != quit) //while the user doesn't want to quit the manipulation menu
             {
                 if(userManipChoice == filterImage) //if the user wants to filter the image
                 {
@@ -134,17 +134,21 @@ int main()
 
                     else if(filterChoice == filterOutBlue) //filter out blue in image
                     {
-                        filterOut(filterChoice, "filterOutBlue.ppm", magicNum, columns, rows, range, input);
+                        filterOut(filterChoice, "filterOutBlue.ppm", magicNum, columns, rows, range, input); //filter out blue in image
 
                     } //filter out blue
 
+                    else if(filterChoice == "s")
+                    {
+                        filterOut(filterChoice, "filterSepia.ppm", magicNum, columns, rows, range, input);
+                    }
 
 
                 } //filter
 
                 else if(userManipChoice == cropImage) //if the user wants to crop the image
                 {
-                    getCropDimensions(rowTop, rowBottom, rows, columns);
+                    getCropDimensions(rowTop, rowBottom, rows, columns); //get dimensions for cropping
 
                     cropImageByRow(magicNum, rows, columns, range, rowTop, rowBottom, input); //crop image by row
 
@@ -158,7 +162,7 @@ int main()
 
                 } //rotate
 
-               manipOptions(userManipChoice);
+               manipOptions(userManipChoice); //keeps the menu running until the user wants to exit to the previous menu
 
             } //while
 
@@ -183,14 +187,14 @@ int main()
             }
 
             writeHTML(fileNames, numImg); //write the .html file using the fileNames array
+            /*the html file has an example image to demonstrate an example of what the image could look like after someone
+            manually changes the random .ppm images to .jpg images */
 
             cout << endl;
 
-            promptUser(userChoice); //return to main menu
-
         } //generate image
 
-        promptUser(userChoice);
+        promptUser(userChoice); //keeps the main menu running until the user says to quit
 
     } //while the user doesn't choose quit
 
@@ -247,12 +251,12 @@ string getFileName()
     {
         inFile.close(); //close invalid file stream
 
-        cout << "   File not there" << endl;
+        cout << "   ** File not there **" << endl;
         cout << endl;
         cout << "   Enter new file: ";
-        cout << endl;
         cin >> tempFile;
         inFile.open(tempFile); //open the user's replacement file
+        cout << endl;
     }
 
     inFile.close(); //if it exists, close file
@@ -260,9 +264,10 @@ string getFileName()
    return  tempFile; //return file name that's valid
 }
 
-bool readinSize(const string &fileName, string &magicNum, int &rows, int &columns, int &range)
+bool readinSize(string &fileName, string &magicNum, int &rows, int &columns, int &range)
 {
-    ifstream inFile(fileName); //opened with constructor
+    ifstream inFile;
+    inFile.open(fileName); //opened with constructor
 
     inFile >> magicNum; //read in standard info
     inFile >> columns;
@@ -271,26 +276,47 @@ bool readinSize(const string &fileName, string &magicNum, int &rows, int &column
 
     inFile.close();
 
-    if(columns > MAXCOLUMNS) //if the image is too large
+    while(columns > MAXCOLUMNS || magicNum != "P3" || !inFile) //error checking: if the image is too large, it's not a .ppm file, or the file doesn't exist
     {
-        cout << "   Image too large" << endl;
+        inFile.close();
+        if(columns > MAXCOLUMNS)
+        {
+            cout << "   ** Image too large **" << endl;
+        }
+        else if(magicNum != "P3")
+        {
+            cout << "   ** Invalid Image **" << endl;
+        }
+        else if(!inFile)
+        {
+            cout << "   ** File not there **" << endl;
+        }
+
         cout << endl;
-        return false;
+
+        fileName = getFileName(); //change file name
+        inFile.open(fileName);
+
+        inFile >> magicNum; //read in standard info
+        inFile >> columns;
+        inFile >> rows;
+        inFile >> range;
     }
+
+    inFile.close();
 
     return true;
 }
 
 void readInFile(const string &fileName, int &rows, int &columns, short input[][MAXCOLUMNS][3])
 {
-    ifstream inFile(fileName); //opened with constructor
+    ifstream inFile;
+    inFile.open(fileName); //opened file
 
     string filler;
     getline(inFile, filler);
     getline(inFile, filler);
     getline(inFile, filler); //skip standard information since we're reopening the file from the beginning
-
-
 
 
      for(int i = 0; i < rows; i++) //put image information into 3D array
@@ -328,10 +354,9 @@ bool checkInput(char choice, char option1, char option2, char option3, char opti
     }
 }
 
-
-bool checkInput(string choice, string option1, string option2, string option3, string option4, string option5) //used for filter menu
+bool checkInput(string choice, string option1, string option2, string option3, string option4, string option5, string option6) //used for filter menu
 {
-    if(choice != option1 && choice != option2 && choice != option3 && choice != option4 && choice != option5) //if the user input doesn't match given options
+    if((choice != option1) && (choice != option2) && (choice != option3) && (choice != option4) && (choice != option5) &&(choice != option6)) //if the user input doesn't match given options
     {
         cout << "   * Invalid Input * " << endl;
         cout << endl;
@@ -374,6 +399,7 @@ void filterImageMenu(string &filterChoice)
         cout << "   Red [ r ]" << endl;
         cout << "   Blue [ b ]" << endl;
         cout << "   Green [ gr ]" << endl;
+        cout << "   Sepia [ s ]" << endl;
         cout << "   Quit [ q ]" << endl;
         cout << endl;
 
@@ -383,11 +409,10 @@ void filterImageMenu(string &filterChoice)
         cin.ignore(1024, '\n');
         cout << endl;
     }
-    while(checkInput(tempChoice, "gs", "r", "b", "gr", "q") == false);
+    while(checkInput(tempChoice, "gs", "r", "b", "gr", "s", "q") == false);
 
     filterChoice = tempChoice;
 }
-
 
 void filterOut(string &filterChoice, string fileName, string &magicNum, int &columns, int &rows, int &range, short input[][MAXCOLUMNS][3])
 {
@@ -519,6 +544,39 @@ void filterOut(string &filterChoice, string fileName, string &magicNum, int &col
         cout << endl;
 
     } //greyscale
+
+        if(filterChoice == "s") //if the user picks sepia
+    {
+        int red; //stores colors after they've been modified for sepia
+        int green;
+        int blue;
+
+        for(int i = 0; i < rows; i++)
+        {
+            for(int j = 0; j < columns; j++) //use formula to make sepia
+            {
+                red = input[i][j][0];
+                green = input[i][j][1];
+                blue = input[i][j][2];
+
+                outFile << ((red * 0.393) + (green * 0.769) + (blue * 0.189));
+                outFile << endl;
+                outFile << ((red * 0.349) + (green * 0.686) + (blue * 0.168));
+                outFile << endl;
+                outFile << ((red) * 0.272 + (green * 0.534) + (blue * 0.131));
+                outFile << endl;
+
+
+            } //j
+
+        } //i
+
+        outFile.close();
+
+        cout << "   File was saved as filterSepia.ppm " << endl;
+        cout << endl;
+
+    }
 
 
 
@@ -664,15 +722,13 @@ void generateRandomImage(string fileName)
     int length = 300;
     ofstream outFile;
 
-    outFile.open(fileName) ; //, ofstream::trunc);
+    outFile.open(fileName);
 
     int r; //red
     int g; //green
     int b; //blue
 
-  //  srand(time(0));
-
-    outFile << "P3" << endl;
+    outFile << "P3" << endl; //writing out standard info
     outFile << width << " " << length << endl;
     outFile << "300" << endl;
 
@@ -680,12 +736,9 @@ void generateRandomImage(string fileName)
     {
         for(int j = 0; j < width; j++)
         {
-            r = rand() % 300 ;
-            g = rand() % 300 ;
-            b = rand() % 300 ;
-         //   r = ((rand() % 300) + i)% 300; //i just made these formulas up
-           //  = ((rand() % 300) + j) % 300;
-            //b = ((i % j) * (i * j) % 300);
+            r = rand() % 300; //randomly assigning colors to pixels
+            g = rand() % 300;
+            b = rand() % 300;
 
             outFile << r << endl;
             outFile << g << endl;
