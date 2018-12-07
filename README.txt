@@ -14,3 +14,4 @@ Notes
   -> changed setting made it so I didn't have to convert strings to character arrays to be read in
 - If you are running the program and entering a file that was converted to ppm with GIMP, the second line with the '#' comment should be deleted before reading it in.
 - The zip file is going to have generatedExample.jpg, this is an example image that's for the .html file 
+- I couldn't find a formula for sepia that worked fully, but the formula I have works on most of the picture inputted
