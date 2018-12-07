@@ -16,3 +16,4 @@ Notes
 - The zip file is going to have generatedExample.jpg, this is an example image that's for the .html file 
 	-> I added this in as an example of what a random .jpg will look like in my .html file once converted from .ppm
 - I couldn't find a formula for sepia that worked fully, but the formula I have works on most of the picture inputted
+- If a user is in any menu and enters a bunch of random characters, but the first character they entered is a valid menu option, then the program will ignore the random characters after the first one and take the first one as the user input
